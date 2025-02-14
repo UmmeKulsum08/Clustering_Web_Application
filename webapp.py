@@ -60,9 +60,21 @@ if data_file:
     else:
         st.success("Correct file uploaded. Proceed with the analysis.")
 
+    df = None # Prevents further processing
+
     if data_file:   # Only execute if a file is uploaded
-        df = pd.read_excel(data_file, sheet_name="world_development")
-    
+        try:
+            xl = pd.ExcelFile(data_file)
+            if "world_development" not in xl.sheet_names:
+                st.error("The uploaded file does not contain the required 'world_development' sheet. Please upload the correct file.")
+            else:
+                df = xl.parse("world_development")
+
+        except Exception as e:
+            st.error(f"An error occurred while reading the file: {e}")
+            
+    # Only proceed if df is successfully loaded
+    if df is not None:
         # Display the dataset
         st.write("### Dataset")
         st.write(df)
